@@ -10,6 +10,8 @@ public class EventStream {
 	public typealias Delegate = (String, String) -> Void
 	let delegate: Delegate
 	
+	let queue = DispatchQueue(label: "HTTP EventSource")
+	
 	var fieldName = ""
 	var event = ""
 	var data = ""
@@ -23,12 +25,14 @@ public class EventStream {
 		curlObject.setOption(CURLOPT_HTTPHEADER, s: "Accept: text/event-stream")
 		curlObject.setOption(CURLOPT_FOLLOWLOCATION, int: 1)
 		
-		while true {
-			let fragment = curlObject.perform()
-			if let bodyFragment = fragment.3 {
-				parse(String(bytes: bodyFragment, encoding: .utf8)!)
+		queue.async {
+			while true {
+				let fragment = curlObject.perform()
+				if let bodyFragment = fragment.3 {
+					self.parse(String(bytes: bodyFragment, encoding: .utf8)!)
+				}
+				if fragment.0 == false { break }
 			}
-			if fragment.0 == false { break }
 		}
 	}
 	
@@ -44,7 +48,9 @@ public class EventStream {
 						continue
 					}
 					if unparsedBuffer.startsWithNewline {
-						delegate(event, data)
+						DispatchQueue.main.sync {
+							delegate(event, data)
+						}
 						fieldName = ""
 						event = ""
 						data = ""
