@@ -1,4 +1,5 @@
 import Foundation
+import Dispatch
 import PerfectCURL
 import cURL
 
@@ -21,17 +22,30 @@ public class EventStream {
 	
 	public init(from source: String, delegate: @escaping Delegate) {
 		self.delegate = delegate
-		let curlObject = CURL(url: source)
-		curlObject.setOption(CURLOPT_HTTPHEADER, s: "Accept: text/event-stream")
-		curlObject.setOption(CURLOPT_FOLLOWLOCATION, int: 1)
-		
 		queue.async {
 			while true {
-				let fragment = curlObject.perform()
-				if let bodyFragment = fragment.3 {
-					self.parse(String(bytes: bodyFragment, encoding: .utf8)!)
+				// Setup reconnection timeout (2 seconds)
+				let group = DispatchGroup()
+				group.enter()
+				DispatchQueue.global(qos: .background).asyncAfter(
+					deadline: .now() + 5,
+					execute: group.leave
+				)
+				
+				let curlObject = CURL(url: source)
+				curlObject.setOption(CURLOPT_HTTPHEADER, s: "Accept: text/event-stream")
+				curlObject.setOption(CURLOPT_FOLLOWLOCATION, int: 1)
+			
+				while true {
+					let fragment = curlObject.perform()
+					if let bodyFragment = fragment.3 {
+						self.parse(String(bytes: bodyFragment, encoding: .utf8)!)
+					}
+					if fragment.0 == false { break }
 				}
-				if fragment.0 == false { break }
+				
+				// wait until the timeout is passed
+				group.wait()
 			}
 		}
 	}
