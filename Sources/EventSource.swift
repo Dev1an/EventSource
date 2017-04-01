@@ -7,7 +7,7 @@ enum Section { case field, value, comment }
 
 public class EventStream {
 	
-	typealias Delegate = (String, String) -> Void
+	public typealias Delegate = (String, String) -> Void
 	let delegate: Delegate
 	
 	var fieldName = ""
@@ -17,7 +17,7 @@ public class EventStream {
 	
 	var section = Section.field
 	
-	init(from source: String, delegate: @escaping Delegate) {
+	public init(from source: String, delegate: @escaping Delegate) {
 		self.delegate = delegate
 		let curlObject = CURL(url: source)
 		curlObject.setOption(CURLOPT_HTTPHEADER, s: "Accept: text/event-stream")
