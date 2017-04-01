@@ -1,6 +1,6 @@
+import Foundation
 import PerfectCURL
 import cURL
-import Foundation
 
 struct Break: Error {}
 enum Section { case field, value, comment }

@@ -6,7 +6,7 @@ let package = Package(
     name: "EventStream",
     dependencies: [
 		.Package(
-			url: "https://github.com/PerfectlySoft/Perfect-Curl.git",
+			url: "https://github.com/Dev1an/Perfect-CURL.git",
 			majorVersion: 2, minor: 0
 		)
 	]

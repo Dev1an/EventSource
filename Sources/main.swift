@@ -6,8 +6,6 @@
 //
 //
 
-import cURL
-
 let firebase = "https://homecontrol-f0066.firebaseio.com/Home/0/Radio/0/currentChannel.json"
 
 EventStream(from: firebase) {
