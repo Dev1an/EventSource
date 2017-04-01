@@ -3,7 +3,7 @@
 import PackageDescription
 
 let package = Package(
-    name: "EventStream",
+    name: "EventSource",
     dependencies: [
 		.Package(
 			url: "https://github.com/Dev1an/Perfect-CURL.git",
